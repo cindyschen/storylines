@@ -178,7 +178,7 @@ const handleBackgroundChange = (event: boolean): void => {
 
 const stepEnter = ({ element }: { element: HTMLElement }): void => {
     activeChapterIndex.value = parseInt(element.dataset.chapterIndex || '-1');
-    emit('step', activeChapterIndex.value);
+        emit('step', activeChapterIndex.value);
     const horizontalNav = document.getElementById('h-navbar');
     if (horizontalNav) {
         horizontalNavHeight.value = horizontalNav.clientHeight * 0.75;

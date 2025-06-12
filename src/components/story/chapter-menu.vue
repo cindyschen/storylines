@@ -227,7 +227,7 @@
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
-import { computed, ref, watch, onMounted } from 'vue';
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import type { MenuItem, Slide } from '@storylines/definitions';
 import TocItem from '@storylines/components/panels/helpers/toc-item.vue';
 
@@ -261,6 +261,7 @@ const props = defineProps({
 const isMenuOpen = ref(false);
 const introExists = ref(false);
 const lastActiveIdx = ref(-1);
+const slideButton = ref(false);
 
 const sublistToggled = ref({} as Record<number, boolean>);
 
@@ -276,6 +277,7 @@ const tocSlides = computed(() => {
 });
 
 const scrollToTarget = (index) => {
+    console.log("hello")
     emit('scroll-to-slide', index);
 };
 
@@ -298,6 +300,7 @@ const customTocSlides = computed(() => {
 watch(
     () => props.activeChapterIndex,
     () => {
+            console.log("hi")
         updateActiveIdx();
     }
 );
@@ -310,7 +313,37 @@ onMounted(() => {
             sublistToggled.value[idx] = false;
         });
     }
+        window.addEventListener('scroll', detectActiveSlide, { passive: true });
 });
+
+onUnmounted(() => {
+    window.removeEventListener('scroll', detectActiveSlide);
+});
+
+const detectActiveSlide = (): void => {
+    console.log(slideButton.value)
+    if(slideButton.value === false){
+    const slidesList = props.customToc ? customTocSlides.value : tocSlides.value;
+        let candidateIdx = -1;
+
+    for (const slide of slidesList) {
+        const el = document.getElementById(`${slide.index}-${slide.title.toLowerCase().replaceAll(' ', '-')}`);
+        if (!el) {
+            continue;
+        }
+        const rect = el.getBoundingClientRect();
+        const fullyVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+
+        if (fullyVisible) {
+            candidateIdx = slide.slideIndex ?? slide.index;
+        }
+    }
+
+    if (candidateIdx !== -1 && candidateIdx !== lastActiveIdx.value) {
+        lastActiveIdx.value = candidateIdx;
+    }
+}
+};
 
 const scrollToChapter = (id: string): void => {
     const el = document.getElementById(id);
