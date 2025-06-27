@@ -1,12 +1,12 @@
 <template>
     <div class="graphic self-start flex flex-col h-full align-middle pb-5 w-full">
-        <fullscreen :expandable="config.fullscreen" :type="config.type">
+        <fullscreen :expandable="config.fullscreen" :type="config.type" :style="{minHeight: '50vh'}">
             <img
                 ref="img"
                 :src="lazyLoad && slideIdx > 2 ? '' : state.src"
                 :class="[config.class, config.caption ? 'rounded-t-lg' : 'rounded-lg']"
                 :alt="config.altText || ''"
-                :style="{ width: `${config.width}px`, height: `${config.height}px` }"
+                :style="{ width: `${config.width}px`, height: `${config.height}px`}"
                 class="graphic-image mx-auto flex object-contain sm:max-w-screen sm:max-h-screen"
             />
         </fullscreen>
