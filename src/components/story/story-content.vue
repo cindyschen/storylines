@@ -76,7 +76,7 @@ import StorylinesSlide from './slide.vue';
 import Scrollama from '@storylines/components/panels/helpers/scrollama.vue';
 
 const route = useRoute();
-const emit = defineEmits(['step']);
+const emit = defineEmits(['step', 'last-slide-height']);
 
 const props = defineProps({
     config: {

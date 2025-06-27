@@ -78,12 +78,13 @@
                 {{ $t('story.date') }}
                 {{ config.dateModified }}
             </div>
+            <div class="footer-padding" v-if="footerPadding" :style="footerPaddingStyle"></div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { getCurrentInstance, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, getCurrentInstance, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute, type RouteLocationNormalized } from 'vue-router';
 
 import MobileMenu from './mobile-menu.vue';
@@ -96,14 +97,33 @@ import { EventBus } from '../../event-bus';
 
 const route = useRoute();
 
+const footerPadding = computed(
+    () => !window.location.href.includes('index-ca-en.html') && !window.location.href.includes('index-ca-fr.html')
+);
+
+const footerPaddingStyle = computed(() => {
+measureNav();
+  const extra = (64 + navHeight.value + 64 + 56 + 60)
+  const h = `calc(100dvh - ${lastSlideHeight.value + extra}px)`;
+return { height: h };
+});
+
 const config = ref<StoryRampConfig | undefined>(undefined);
 const loadStatus = ref('loading');
 const activeChapterIndex = ref(-1);
 const targetIndex = ref(-1);
 const headerHeight = ref(0);
 const lang = ref('en');
+const lastSlideHeight = ref(0);
+const navHeight = ref(0);
+
+function measureNav(): void {
+  const nav = document.getElementById('h-navbar');
+  navHeight.value = nav ? nav.offsetHeight : 0;
+}
 
 onMounted(() => {
+  window.addEventListener('resize', measureNav);
     EventBus.on('scroll-to-slide', (params) => {
         setTargetIndex(+params.slideIndex);
     });
@@ -127,6 +147,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+       measureNav();
     EventBus.off('scroll-to-slide', (params) => {
         setTargetIndex(+params.slideIndex);
     });
@@ -222,6 +243,11 @@ const updateActiveIndex = (idx: number): void => {
     if (headerH) {
         headerHeight.value = headerH.clientHeight;
     }
+            const slides = document.querySelectorAll('.story-slide');
+        const lastSlide = slides[slides.length - 1] as HTMLElement;
+        if (lastSlide) {
+            lastSlideHeight.value = lastSlide.offsetHeight;
+        }
 };
 </script>
 
